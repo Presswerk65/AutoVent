@@ -20,4 +20,6 @@ Generate automated vent holes in STL geometry for vacuum forming workflows.
 
 Install dependencies with:
 ```bash
+sudo apt update
+sudo apt install openscad python3-pip
 pip install trimesh numpy scipy shapely scikit-learn
