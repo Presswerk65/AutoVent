@@ -1,6 +1,7 @@
 import trimesh
 import numpy as np
 import os
+import sys
 import shutil
 import subprocess
 from glob import glob
@@ -27,15 +28,24 @@ grid_size_mm = 0.15               # Grid size (mm) for XY data reduction
 edge_clearance_mm = 2             # Minimum clearance (mm) from the boundary for hole placement
 surface_depth_mm = 10.0           # Depth (mm) from the top surface for hole detection
 
-openscad_path = r"C:\Program Files\OpenSCAD\openscad.exe"  # Path to OpenSCAD installation
+# Automatically set working directory to current directory
+working_dir = os.getcwd()
 
-export_dir = "."                  # Target folder for processed STL files
-tmp_dir = "Temp"                  # Temporary folder for frustum generation
+# Determine OpenSCAD path depending on platform
+if sys.platform.startswith("win"):
+    openscad_path = r"C:\Program Files\OpenSCAD\openscad.exe"
+else:
+    openscad_path = "openscad"  # Linux / Codespace: OpenSCAD must be in PATH
 
+# Subfolders for input, export, and temporary files
+input_dir = working_dir
+export_dir = os.path.join(working_dir, "export")
+tmp_dir = os.path.join(working_dir, "temp")
 
-# Ensure temporary directory exists
+# Ensure all required directories exist
+os.makedirs(input_dir, exist_ok=True)
+os.makedirs(export_dir, exist_ok=True)
 os.makedirs(tmp_dir, exist_ok=True)
-
 
 def generate_frustum_openscad(radius_top, radius_base, height, path):
     """Generate a frustum in OpenSCAD and export as STL."""
@@ -143,8 +153,12 @@ def process_stl(path):
     print(f"💾 Frustum saved in: {output_path}")
 
     # Clean temporary directory again
-    for f in os.listdir(tmp_dir):
-        os.remove(os.path.join(tmp_dir, f))
+    # for f in os.listdir(tmp_dir):
+    #    os.remove(os.path.join(tmp_dir, f))
+
+    # Clean up temp directory after processing
+    if os.path.exists(tmp_dir):
+        shutil.rmtree(tmp_dir, ignore_errors=True)        
 
 
 # Process all STL files in the current directory
